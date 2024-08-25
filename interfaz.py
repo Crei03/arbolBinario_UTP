@@ -61,8 +61,7 @@ class controlUi:
         self.terminal.insert(tk.END, msg)  # Inserta el mensaje al final
         self.terminal.config(state=tk.DISABLED)  # Deshabilita la edición nuevamente 
 
-    
-    
+
 if __name__ == '__main__':
     root = tk.Tk()
     app = controlUi(root)
