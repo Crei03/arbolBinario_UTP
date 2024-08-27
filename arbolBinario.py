@@ -47,9 +47,9 @@ class ArbolBinario:
     
     def buscar(self, nodo, dato):
         if self.__buscar(nodo,dato) is None:
-            print("\nNo se encontro el dato")
+            return None
         else:
-            print("\nSe encontro el dato en el nivel: ",self.__buscar_Nivel(nodo,dato,0))
+            return self.__buscar_Nivel(nodo,dato,0)
     
     def pre_order(self, nodo):      #Funcion para recorrer el arbol en pre orden
         resultado = []
@@ -108,33 +108,35 @@ class ArbolBinario:
 
             # Caso 3: El nodo tiene dos hijos
             else:
-                if self.profundidad(nodo.izquierda) <= self.profundidad(nodo.derecha):
-                    # Si el subárbol izquierdo es menos profundo o igual, usa el máximo en el izquierdo
-                    temp = self.max_value_node(nodo.izquierda)
-                    nodo.dato = temp.dato
-                    nodo.izquierda = self.eliminar(nodo.izquierda, temp.dato)
+                max_izquierda = self.max_value_node(nodo.izquierda)
+                min_derecha = self.min_value_node(nodo.derecha)
+
+                # Comparar distancias para decidir el reemplazo
+                if abs(nodo.dato - max_izquierda.dato) <= abs(nodo.dato - min_derecha.dato):
+                    # Si el nodo izquierdo está más cerca o igual
+                    nodo.dato = max_izquierda.dato
+                    nodo.izquierda = self.eliminar(nodo.izquierda, max_izquierda.dato)
                 else:
-                    # Si el subárbol derecho es menos profundo, usa el mínimo en el derecho
-                    temp = self.min_value_node(nodo.derecha)
-                    nodo.dato = temp.dato
-                    nodo.derecha = self.eliminar(nodo.derecha, temp.dato)
+                    # Si el nodo derecho está más cerca
+                    nodo.dato = min_derecha.dato
+                    nodo.derecha = self.eliminar(nodo.derecha, min_derecha.dato)
 
         return nodo
 
-
     def min_value_node(self, nodo):
-        actual = nodo
+        current = nodo
         # El valor mínimo está en el nodo más a la izquierda
-        while actual.izquierda is not None:
-            actual = actual.izquierda
-        return actual
+        while current.izquierda is not None:
+            current = current.izquierda
+        return current
 
     def max_value_node(self, nodo):
         current = nodo
         # El valor máximo está en el nodo más a la derecha
-        while actual.derecha is not None:
-            actual = actual.derecha
-        return actual
+        while current.derecha is not None:
+            current = current.derecha
+        return current
+
 
     def profundidad(self, nodo):
         if nodo is None:

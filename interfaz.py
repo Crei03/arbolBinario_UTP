@@ -9,12 +9,15 @@ class controlUi:
     def __init__(self, root):
         self.root = root
         self.root.title("Control de Arbol Binario")
+        #desahanilitar el boton de cerrar
         
-        self.arbol_app = arbolBinarioApp(50)
-        
+        inicio = simpledialog.askinteger("Input", "Ingrese el dato de la raíz del árbol:")
+        self.arbol_app = arbolBinarioApp(inicio)
+        # dibujar la raíz
+        self.arbol_app.dibujar_arbol(self.arbol_app.arbol.raiz, 0, 100, 0, 120)
         
         # Crear el widget Text como terminal
-        self.terminal = tk.Text(self.root, height=10, width=50, state=tk.DISABLED)
+        self.terminal = tk.Text(self.root, height=15, width=60, state=tk.DISABLED)
         self.terminal.pack(pady=10)
         # Crear un frame para los botones
         frame_botones = tk.Frame(self.root)
@@ -29,16 +32,17 @@ class controlUi:
 
         self.btnBuscarNodo = tk.Button(frame_botones, text="Buscar nodo", command=self.buscar_nodo)
         self.btnBuscarNodo.grid(row=0, column=2, padx=10, pady=5)
+        
+        self.btnSalir = tk.Button(frame_botones, text="Salir del programa", command=self.salir_programa)
+        self.btnSalir.grid(row=0, column=3, padx=10, pady=5)  
 
         self.btnDeleteNodo = tk.Button(frame_botones, text="Eliminar nodo", command=self.eliminar_nodo)
-        self.btnDeleteNodo.grid(row=0, column=3, padx=10, pady=5)
+        self.btnDeleteNodo.grid(row=1, column=0, padx=10, pady=5)
         
-        self.btnCargarDatos = tk.Button(frame_botones, text="Cargar datos", command=self.cargar_datos)
-        self.btnCargarDatos.grid(row=1, column=1, pady=5)
-
         self.btnReiniciar = tk.Button(frame_botones, text="Reiniciar arbol", command=self.reiniciar_arbol)
-        self.btnReiniciar.grid(row=1, column=0, pady=10)
+        self.btnReiniciar.grid(row=1, column=1, padx=10, pady=5)
          
+        
         
     def dibujar_arbol(self):
         # Solicita el dato para insertar
@@ -80,33 +84,18 @@ class controlUi:
         self.send_terminal(msg)
         
     def buscar_nodo(self):
-        nodo = simpledialog.askinteger("Input", "Ingrese el dato del nodo a buscar:")
-        #Invocar al método de busqueda del arbol binario
-        #TODO
-        msg = "" #Mensaje de respuesta de la busqueda
-        
-    def cargar_datos(self):
-        while(True):
-            opt = simpledialog.askstring("Input", "Escoga la opción que desea cargar\n1.- Letras\n2.- Nombres\n3.- Números")
-
-            if opt == "1":
-                msg = ("Cargando datos...")
-                self.send_terminal(msg)
-                break
-            elif opt == "2":
-                msg = ("Cargando datos...")
-                self.send_terminal(msg)
-                break
-            elif opt == "3":
-                msg = ("Cargando datos...")
-                self.send_terminal(msg)
-                break
-            elif opt == None:
-                msg = "Operación cancelada.\n"
-                self.send_terminal(msg)
-                break
+        dato = simpledialog.askinteger("Input", "Ingrese el dato del nodo a buscar:")
+        if dato is not None:
+            nivel = self.arbol_app.buscar_nodo(dato)
+            if nivel is not None:
+                msg = f"El dato {dato} se encuentra en el nivel {nivel}.\n"
             else:
-                messagebox.showerror("Error", "Opción inválida")
+                msg = f"El dato {dato} no se encontró en el árbol.\n"
+        else:
+            msg = "Dato inválido.\n"
+
+        self.send_terminal(msg)
+        
         
     def send_terminal(self,msg):
         self.terminal.config(state=tk.NORMAL)  # Habilita la edición temporalmente
@@ -117,13 +106,13 @@ class controlUi:
         while (True):
             confirmacion = simpledialog.askstring("Input", "¿Está seguro que desea reiniciar el árbol? (s/n)")
             
-            if confirmacion == "s" or confirmacion == "S":
+            if confirmacion == "s" or confirmacion == "S" or confirmacion is not None:
                 self.arbol_app.reiniciar_arbol()
                 msg = "El árbol ha sido reiniciado.\nSolo la raíz permanece.\n"
                 self.send_terminal(msg)
                 break
             else:
-                if confirmacion == "n" or confirmacion == "N":
+                if confirmacion == "n" or confirmacion == "N" or confirmacion is None:
                     msg = "Operación cancelada.\n"
                     self.send_terminal(msg)
                     break
@@ -140,12 +129,31 @@ class controlUi:
             msg = "Dato inválido.\n"
 
         self.send_terminal(msg)
+        
+    def salir_programa(self):
+        conf = simpledialog.askstring("Input", "¿Está seguro que desea salir del programa? (s/n)")
+        if conf == "s" or conf == "S" or conf is not None:
+            self.root.quit()
+            self.root.destroy() # Cerrar la ventana principal
+        else:
+            if conf == "n" or conf == "N" or conf is None:
+                msg = "Operación cancelada.\n"
+                self.send_terminal(msg)
+            else:
+                messagebox.showerror("Error", "Opción inválida")
    
 class arbolBinarioApp:
     def __init__(self, raiz_dato):
         # Inicializa el árbol binario con un nodo raíz
         self.arbol = ArbolBinario(raiz_dato)
         self.screen_setup()
+        
+    def buscar_nodo(self, dato):
+        nivel = self.arbol.buscar(self.arbol.raiz, dato)
+        if nivel is not None:
+            return nivel
+        else:
+            return None
     
     def recorrer_arbol(self, orden):
         if orden == "pre":
